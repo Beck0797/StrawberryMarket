@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:strawberry_market/screens/signup_screen.dart';
 
 class LoginScreen extends StatelessWidget {
   LoginScreen({super.key});
@@ -28,7 +29,6 @@ class LoginScreen extends StatelessWidget {
     return SizedBox(
       height: double.infinity,
       child: SingleChildScrollView(
-        physics: const NeverScrollableScrollPhysics(),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(25, 0, 25, 0),
           child: Column(
@@ -124,6 +124,7 @@ class LoginScreen extends StatelessWidget {
                       ),
                       TextFormField(
                         maxLength: 10,
+                        obscureText: true,
                         keyboardType: TextInputType.visiblePassword,
                         decoration: InputDecoration(
                           counterText: "",
@@ -236,7 +237,7 @@ class LoginScreen extends StatelessWidget {
                                     textStyle: const TextStyle(fontSize: 20),
                                   ),
                                   onPressed: _login,
-                                  child: const Text('Login'),
+                                  child: const Text('Sign In'),
                                 ),
                               ),
                             ],
@@ -259,16 +260,24 @@ class LoginScreen extends StatelessWidget {
                           const SizedBox(
                             width: 5,
                           ),
-                          Text(
-                            'Sign up',
-                            style: GoogleFonts.mukta(
-                              color: const Color.fromARGB(255, 3, 131, 250),
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                              decoration: TextDecoration.underline,
-                              decorationColor:
-                                  const Color.fromARGB(255, 3, 131, 250),
-                              decorationThickness: 4,
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (cnt) => SignUpScreen()));
+                            },
+                            child: Text(
+                              'Sign up',
+                              style: GoogleFonts.mukta(
+                                color: const Color.fromARGB(255, 3, 131, 250),
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                decoration: TextDecoration.underline,
+                                decorationColor:
+                                    const Color.fromARGB(255, 3, 131, 250),
+                                decorationThickness: 4,
+                              ),
                             ),
                           ),
                         ],
