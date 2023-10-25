@@ -28,6 +28,7 @@ class LoginScreen extends StatelessWidget {
     return SizedBox(
       height: double.infinity,
       child: SingleChildScrollView(
+        physics: const NeverScrollableScrollPhysics(),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(25, 0, 25, 0),
           child: Column(
@@ -50,7 +51,7 @@ class LoginScreen extends StatelessWidget {
                   style: GoogleFonts.mukta(
                     color: Colors.black,
                     fontWeight: FontWeight.bold,
-                    fontSize: 36,
+                    fontSize: 32,
                   ),
                 ),
                 const SizedBox(
@@ -64,6 +65,7 @@ class LoginScreen extends StatelessWidget {
                         maxLength: 20,
                         keyboardType: TextInputType.emailAddress,
                         decoration: InputDecoration(
+                          counterText: "",
                           label: const Text('Email Address'),
                           prefixIcon: Padding(
                             padding: const EdgeInsets.only(top: 2),
@@ -93,6 +95,12 @@ class LoginScreen extends StatelessWidget {
                               color: Color.fromARGB(255, 255, 42, 35),
                             ),
                           ),
+                          focusedErrorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: const BorderSide(
+                              color: Color.fromARGB(255, 255, 42, 35),
+                            ),
+                          ),
                         ),
                         validator: (value) {
                           if (value == null ||
@@ -112,12 +120,13 @@ class LoginScreen extends StatelessWidget {
                         },
                       ),
                       const SizedBox(
-                        height: 12,
+                        height: 20,
                       ),
                       TextFormField(
                         maxLength: 10,
                         keyboardType: TextInputType.visiblePassword,
                         decoration: InputDecoration(
+                          counterText: "",
                           label: const Text('Password'),
                           prefixIcon: Padding(
                             padding: const EdgeInsets.only(top: 2),
@@ -142,6 +151,12 @@ class LoginScreen extends StatelessWidget {
                                 width: 2.0),
                           ),
                           errorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: const BorderSide(
+                              color: Color.fromARGB(255, 255, 42, 35),
+                            ),
+                          ),
+                          focusedErrorBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10.0),
                             borderSide: const BorderSide(
                               color: Color.fromARGB(255, 255, 42, 35),
@@ -173,7 +188,7 @@ class LoginScreen extends StatelessWidget {
                             'Forgot your password?',
                             style: GoogleFonts.mukta(
                               color: Colors.black,
-                              fontSize: 18,
+                              fontSize: 16,
                             ),
                           ),
                           const SizedBox(
@@ -184,7 +199,7 @@ class LoginScreen extends StatelessWidget {
                             style: GoogleFonts.mukta(
                               color: const Color.fromARGB(255, 3, 131, 250),
                               fontWeight: FontWeight.bold,
-                              fontSize: 18,
+                              fontSize: 16,
                               decoration: TextDecoration.underline,
                               decorationColor:
                                   const Color.fromARGB(255, 3, 131, 250),
@@ -238,7 +253,7 @@ class LoginScreen extends StatelessWidget {
                             'Don\'t have an account? ',
                             style: GoogleFonts.mukta(
                               color: Colors.black,
-                              fontSize: 18,
+                              fontSize: 16,
                             ),
                           ),
                           const SizedBox(
@@ -249,7 +264,7 @@ class LoginScreen extends StatelessWidget {
                             style: GoogleFonts.mukta(
                               color: const Color.fromARGB(255, 3, 131, 250),
                               fontWeight: FontWeight.bold,
-                              fontSize: 18,
+                              fontSize: 16,
                               decoration: TextDecoration.underline,
                               decorationColor:
                                   const Color.fromARGB(255, 3, 131, 250),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:strawberry_market/screens/login_screen.dart';
+import 'package:flutter/services.dart';
 
 final theme = ThemeData(
   useMaterial3: true,
@@ -21,6 +22,8 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    // Hide the navigation bar
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive, overlays: []);
     return MaterialApp(
       theme: theme,
       home: Scaffold(
