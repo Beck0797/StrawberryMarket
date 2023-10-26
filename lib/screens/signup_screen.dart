@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -29,7 +30,30 @@ class SignUpScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive, overlays: []);
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        leading: GestureDetector(
+          onTap: () {
+            Navigator.pop(context);
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(10),
+            child: FadeInRight(
+              child: Container(
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  // color: Theme.of(context).colorScheme.primary,
+                  color: Color.fromARGB(255, 255, 42, 35),
+                ),
+                child: const Icon(
+                  Icons.arrow_back_rounded,
+                  color: Colors.white,
+                  size: 20,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
       body: SizedBox(
         height: double.infinity,
         child: SingleChildScrollView(
@@ -42,10 +66,13 @@ class SignUpScreen extends StatelessWidget {
                   const SizedBox(
                     height: 20,
                   ),
-                  Image.asset(
-                    'assets/images/img_strawberry.png',
-                    width: 130,
-                    height: 130,
+                  BounceInDown(
+                    from: 50,
+                    child: Image.asset(
+                      'assets/images/img_strawberry.png',
+                      width: 130,
+                      height: 130,
+                    ),
                   ),
                   const SizedBox(
                     height: 20,

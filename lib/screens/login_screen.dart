@@ -1,6 +1,8 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:strawberry_market/screens/reset_password_screen.dart';
 import 'package:strawberry_market/screens/signup_screen.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -38,10 +40,13 @@ class LoginScreen extends StatelessWidget {
                 const SizedBox(
                   height: 70,
                 ),
-                Image.asset(
-                  'assets/images/img_strawberry.png',
-                  width: 130,
-                  height: 130,
+                BounceInDown(
+                  from: 50,
+                  child: Image.asset(
+                    'assets/images/img_strawberry.png',
+                    width: 130,
+                    height: 130,
+                  ),
                 ),
                 const SizedBox(
                   height: 20,
@@ -195,16 +200,24 @@ class LoginScreen extends StatelessWidget {
                           const SizedBox(
                             width: 5,
                           ),
-                          Text(
-                            'Restore',
-                            style: GoogleFonts.mukta(
-                              color: const Color.fromARGB(255, 3, 131, 250),
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                              decoration: TextDecoration.underline,
-                              decorationColor:
-                                  const Color.fromARGB(255, 3, 131, 250),
-                              decorationThickness: 4,
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (cnt) => ResetPasswordScreen()));
+                            },
+                            child: Text(
+                              'Restore',
+                              style: GoogleFonts.mukta(
+                                color: const Color.fromARGB(255, 3, 131, 250),
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                decoration: TextDecoration.underline,
+                                decorationColor:
+                                    const Color.fromARGB(255, 3, 131, 250),
+                                decorationThickness: 4,
+                              ),
                             ),
                           ),
                         ],
