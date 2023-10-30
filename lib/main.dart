@@ -26,9 +26,7 @@ class MyApp extends StatelessWidget {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive, overlays: []);
     return MaterialApp(
       theme: theme,
-      home: Scaffold(
-        body: LoginScreen(),
-      ),
+      home: LoginScreen(),
     );
   }
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:strawberry_market/screens/new_password_screen.dart';
 
 class VerifyScreen extends StatelessWidget {
   VerifyScreen({super.key});
@@ -10,9 +11,9 @@ class VerifyScreen extends StatelessWidget {
   final _formKey = GlobalKey<FormState>();
   var password = "";
 
-  void _verifyEmail(BuildContext context) {
+  void _verifyCode(BuildContext context) {
     if (_formKey.currentState!.validate()) {
-      _goToVerifyScreen(context);
+      _goToChangePasswordScreen(context);
     }
   }
 
@@ -23,9 +24,11 @@ class VerifyScreen extends StatelessWidget {
     return double.tryParse(str) != null;
   }
 
-  void _goToVerifyScreen(BuildContext context) {
-    Navigator.push(
-        context, MaterialPageRoute(builder: (cnt) => VerifyScreen()));
+  void _goToChangePasswordScreen(BuildContext context) {
+    Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => NewPasswordScreen()),
+        ModalRoute.withName("/Home"));
   }
 
   void _showToast(String message) {
@@ -351,7 +354,7 @@ class VerifyScreen extends StatelessWidget {
                                             const TextStyle(fontSize: 20),
                                       ),
                                       onPressed: () {
-                                        _verifyEmail(context);
+                                        _verifyCode(context);
                                       },
                                       child: const Text('Verify'),
                                     ),
