@@ -2,17 +2,21 @@ import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:strawberry_market/screens/reset_password_screen.dart';
-import 'package:strawberry_market/screens/signup_screen.dart';
+import 'package:strawberry_market/screens/home/main_navigation_screen.dart';
+import 'package:strawberry_market/screens/login/reset_password_screen.dart';
+import 'package:strawberry_market/screens/login/signup_screen.dart';
 
 class LoginScreen extends StatelessWidget {
   LoginScreen({super.key});
 
   final _formKey = GlobalKey<FormState>();
 
-  void _login() {
+  void _login(context) {
     if (_formKey.currentState!.validate()) {
-      _showToast("Logging in...");
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => MainNavigationScreen()),
+          ModalRoute.withName("/Home"));
     }
   }
 
@@ -251,7 +255,9 @@ class LoginScreen extends StatelessWidget {
                                       padding: const EdgeInsets.all(16.0),
                                       textStyle: const TextStyle(fontSize: 20),
                                     ),
-                                    onPressed: _login,
+                                    onPressed: () {
+                                      _login(context);
+                                    },
                                     child: const Text('Sign In'),
                                   ),
                                 ),

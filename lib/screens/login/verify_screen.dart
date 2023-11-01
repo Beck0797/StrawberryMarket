@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:strawberry_market/screens/new_password_screen.dart';
+import 'package:strawberry_market/screens/login/new_password_screen.dart';
 
 class VerifyScreen extends StatelessWidget {
   VerifyScreen({super.key});

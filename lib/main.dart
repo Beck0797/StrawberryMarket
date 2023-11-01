@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:strawberry_market/screens/login_screen.dart';
+import 'package:strawberry_market/screens/login/login_screen.dart';
 import 'package:flutter/services.dart';
 
 final theme = ThemeData(
