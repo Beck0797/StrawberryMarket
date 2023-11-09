@@ -6,10 +6,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:strawberry_market/screens/login/new_password_screen.dart';
 
 class VerifyScreen extends StatelessWidget {
-  VerifyScreen({super.key});
+  VerifyScreen({super.key, required this.verificationCode});
 
   final _formKey = GlobalKey<FormState>();
   var password = "";
+  var verificationCode = "";
 
   void _verifyCode(BuildContext context) {
     if (_formKey.currentState!.validate()) {

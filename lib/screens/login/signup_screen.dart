@@ -1,18 +1,65 @@
+import 'dart:convert';
+import 'dart:js';
+
 import 'package:animate_do/animate_do.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
+import 'package:strawberry_market/screens/login/verify_screen.dart';
+
 
 class SignUpScreen extends StatelessWidget {
   SignUpScreen({super.key});
 
   final _formKey = GlobalKey<FormState>();
   var password = "";
+  var email = "";
 
-  void _signUp() {
+  void goToVerifyScreen(BuildContext context, String verificationCode) {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (cnt) =>
+                VerifyScreen(verificationCode: verificationCode)));
+  }
+
+  Future<void> _signUp(BuildContext context) async {
     if (_formKey.currentState!.validate()) {
-      _showToast("Signing up...");
+      _formKey.currentState!.save();
+      final url = Uri.http(
+          '13.125.246.40:8080', 'api/v1/users/signup');
+      var response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode(
+          {
+            'name': "user",
+            'email': email,
+            'password': password,
+            'confirmPassword': password,
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        if (kDebugMode) {
+          print('Request result: ${response.body}');
+        }
+        final Map parsed = json.decode(response.body);
+        var verificationCode = parsed["verificationCode"];
+        print('verificationCode: $verificationCode');
+
+        goToVerifyScreen(context, verificationCode);
+      } else {
+        print('Request failed with status: ${response.statusCode}.');
+      }
+      // Navigator.of(context).pop();
+
     }
   }
 
@@ -93,7 +140,7 @@ class SignUpScreen extends StatelessWidget {
                     child: Column(
                       children: [
                         TextFormField(
-                          maxLength: 20,
+                          maxLength: 35,
                           keyboardType: TextInputType.emailAddress,
                           decoration: InputDecoration(
                             counterText: "",
@@ -141,6 +188,7 @@ class SignUpScreen extends StatelessWidget {
                                 !value.contains('@')) {
                               return 'Invalid Email';
                             }
+                            email = value;
                             return null;
                           },
                           textInputAction: TextInputAction.next,
@@ -202,7 +250,7 @@ class SignUpScreen extends StatelessWidget {
                                 value.trim().length > 10) {
                               return 'Must be between 6 and 10 characters.';
                             }
-                            password = value!;
+                            password = value;
                             return null;
                           },
                           textInputAction: TextInputAction.next,
@@ -297,7 +345,9 @@ class SignUpScreen extends StatelessWidget {
                                       padding: const EdgeInsets.all(16.0),
                                       textStyle: const TextStyle(fontSize: 20),
                                     ),
-                                    onPressed: _signUp,
+                                    onPressed: () {
+                                      _signUp(context);
+                                    },
                                     child: const Text('Sign Up'),
                                   ),
                                 ),

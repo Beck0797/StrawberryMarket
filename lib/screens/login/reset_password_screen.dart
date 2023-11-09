@@ -102,7 +102,7 @@ class ResetPasswordScreen extends StatelessWidget {
                     child: Column(
                       children: [
                         TextFormField(
-                          maxLength: 20,
+                          maxLength: 35,
                           keyboardType: TextInputType.emailAddress,
                           decoration: InputDecoration(
                             counterText: "",
