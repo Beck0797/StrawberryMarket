@@ -1,19 +1,58 @@
+import 'dart:convert';
 import 'package:animate_do/animate_do.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
 import 'package:strawberry_market/screens/login/new_password_screen.dart';
 
+import 'login_screen.dart';
+
 class VerifyScreen extends StatelessWidget {
-  VerifyScreen({super.key, required this.verificationCode});
+  VerifyScreen(
+      {super.key, required this.verificationCode, required this.isSignUp, required this.email});
 
   final _formKey = GlobalKey<FormState>();
-  var password = "";
   var verificationCode = "";
+  var email = "";
+  bool isSignUp;
 
-  void _verifyCode(BuildContext context) {
+  Future<void> _verifyCode(BuildContext context) async {
     if (_formKey.currentState!.validate()) {
+      final url = Uri.http('13.125.246.40:8080', '/api/v1/users/verify-email');
+      var response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode(
+          {
+            'confirmationCode': verificationCode,
+            'email': email,
+          },
+        ),
+      );
+      
+      final Map parsed = json.decode(response.body);
+      if (response.statusCode == 200) {
+        if (kDebugMode) {
+          print('Request result: ${response.body}');
+        }
+        _goToNextScreen(context);
+      } else {
+        _showToast(parsed["message"].toString());
+        print('response: ${response.body}.');
+      }
+
+    }
+  }
+
+  void _goToNextScreen(BuildContext context) {
+    if (isSignUp) {
+      _goToLogin(context);
+    } else {
       _goToChangePasswordScreen(context);
     }
   }
@@ -29,6 +68,13 @@ class VerifyScreen extends StatelessWidget {
     Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (context) => NewPasswordScreen()),
+        ModalRoute.withName("/Home"));
+  }
+
+  void _goToLogin(BuildContext context) {
+    Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => LoginScreen()),
         ModalRoute.withName("/Home"));
   }
 
@@ -154,6 +200,8 @@ class VerifyScreen extends StatelessWidget {
                                         value.isEmpty ||
                                         !_isNumeric(value)) {
                                       return 'Invalid Input';
+                                    } else if (value != verificationCode[0]) {
+                                      return '';
                                     }
                                     return null;
                                   },
@@ -207,6 +255,8 @@ class VerifyScreen extends StatelessWidget {
                                         value.isEmpty ||
                                         !_isNumeric(value)) {
                                       return 'Invalid Input';
+                                    } else if (value != verificationCode[1]) {
+                                      return '';
                                     }
                                     return null;
                                   },
@@ -260,6 +310,8 @@ class VerifyScreen extends StatelessWidget {
                                         value.isEmpty ||
                                         !_isNumeric(value)) {
                                       return 'Invalid Input';
+                                    } else if (value != verificationCode[2]) {
+                                      return '';
                                     }
                                     return null;
                                   },
@@ -313,6 +365,8 @@ class VerifyScreen extends StatelessWidget {
                                         value.isEmpty ||
                                         !_isNumeric(value)) {
                                       return 'Invalid Input';
+                                    } else if (value != verificationCode[3]) {
+                                      return '';
                                     }
                                     return null;
                                   },
@@ -352,7 +406,7 @@ class VerifyScreen extends StatelessWidget {
                                         foregroundColor: Colors.white,
                                         padding: const EdgeInsets.all(16.0),
                                         textStyle:
-                                            const TextStyle(fontSize: 20),
+                                        const TextStyle(fontSize: 20),
                                       ),
                                       onPressed: () {
                                         _verifyCode(context);

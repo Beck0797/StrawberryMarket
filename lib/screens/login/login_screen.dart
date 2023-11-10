@@ -1,22 +1,55 @@
+import 'dart:convert';
 import 'package:animate_do/animate_do.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:strawberry_market/screens/home/main_navigation_screen.dart';
 import 'package:strawberry_market/screens/login/reset_password_screen.dart';
 import 'package:strawberry_market/screens/login/signup_screen.dart';
+import 'package:http/http.dart' as http;
 
 class LoginScreen extends StatelessWidget {
   LoginScreen({super.key});
 
   final _formKey = GlobalKey<FormState>();
+  var password = "";
+  var email = "";
 
-  void _login(context) {
+  _goToHome(BuildContext context) {
+    Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const MainNavigationScreen()),
+        ModalRoute.withName("/Home"));
+  }
+
+  Future<void> _login(context) async {
     if (_formKey.currentState!.validate()) {
-      Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => MainNavigationScreen()),
-          ModalRoute.withName("/Home"));
+      final url = Uri.http('13.125.246.40:8080', 'api/v1/users/signin');
+      var response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode(
+          {
+            'email': email,
+            'password': password,
+          },
+        ),
+      );
+
+      final Map parsed = json.decode(response.body);
+      if (response.statusCode == 200) {
+        if (kDebugMode) {
+          print('Request result: ${response.body}');
+        }
+        _goToHome(context);
+      } else {
+
+        _showToast(parsed["message"].toString());
+        print('response: ${response.body}.');
+      }
     }
   }
 
@@ -120,6 +153,7 @@ class LoginScreen extends StatelessWidget {
                                 !value.contains('@')) {
                               return 'Invalid Email';
                             }
+                            email = value;
                             return null;
                           },
                           textInputAction: TextInputAction.next,
@@ -181,6 +215,7 @@ class LoginScreen extends StatelessWidget {
                                 value.trim().length > 10) {
                               return 'Must be between 6 and 10 characters.';
                             }
+                            password = value;
                             return null;
                           },
                           textInputAction: TextInputAction.done,

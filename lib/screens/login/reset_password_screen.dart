@@ -19,7 +19,13 @@ class ResetPasswordScreen extends StatelessWidget {
 
   void _goToVerifyScreen(BuildContext context) {
     Navigator.push(
-        context, MaterialPageRoute(builder: (cnt) => VerifyScreen()));
+        context,
+        MaterialPageRoute(
+            builder: (cnt) => VerifyScreen(
+                  verificationCode: "",
+                  isSignUp: false,
+                  email: "",
+                )));
   }
 
   void _showToast(String message) {

@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:js';
 
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/foundation.dart';
@@ -9,7 +8,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:strawberry_market/screens/login/verify_screen.dart';
-
 
 class SignUpScreen extends StatelessWidget {
   SignUpScreen({super.key});
@@ -22,15 +20,17 @@ class SignUpScreen extends StatelessWidget {
     Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (cnt) =>
-                VerifyScreen(verificationCode: verificationCode)));
+            builder: (cnt) => VerifyScreen(
+                  verificationCode: verificationCode,
+                  isSignUp: true,
+                  email: email,
+                )));
   }
 
   Future<void> _signUp(BuildContext context) async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      final url = Uri.http(
-          '13.125.246.40:8080', 'api/v1/users/signup');
+      final url = Uri.http('13.125.246.40:8080', 'api/v1/users/signup');
       var response = await http.post(
         url,
         headers: {
@@ -46,20 +46,21 @@ class SignUpScreen extends StatelessWidget {
         ),
       );
 
+      final Map parsed = json.decode(response.body);
+
       if (response.statusCode == 200) {
         if (kDebugMode) {
           print('Request result: ${response.body}');
         }
-        final Map parsed = json.decode(response.body);
         var verificationCode = parsed["verificationCode"];
         print('verificationCode: $verificationCode');
 
-        goToVerifyScreen(context, verificationCode);
+        goToVerifyScreen(context, verificationCode.toString());
       } else {
-        print('Request failed with status: ${response.statusCode}.');
+        _showToast(parsed["message"].toString());
+        print('response: ${response.body}.');
       }
       // Navigator.of(context).pop();
-
     }
   }
 
