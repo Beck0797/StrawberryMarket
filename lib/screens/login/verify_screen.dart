@@ -12,7 +12,10 @@ import 'login_screen.dart';
 
 class VerifyScreen extends StatelessWidget {
   VerifyScreen(
-      {super.key, required this.verificationCode, required this.isSignUp, required this.email});
+      {super.key,
+      required this.verificationCode,
+      required this.isSignUp,
+      required this.email});
 
   final _formKey = GlobalKey<FormState>();
   var verificationCode = "";
@@ -34,18 +37,18 @@ class VerifyScreen extends StatelessWidget {
           },
         ),
       );
-      
+
       final Map parsed = json.decode(response.body);
       if (response.statusCode == 200) {
         if (kDebugMode) {
           print('Request result: ${response.body}');
         }
+        _showToast(parsed["message"].toString());
         _goToNextScreen(context);
       } else {
         _showToast(parsed["message"].toString());
         print('response: ${response.body}.');
       }
-
     }
   }
 
@@ -67,7 +70,8 @@ class VerifyScreen extends StatelessWidget {
   void _goToChangePasswordScreen(BuildContext context) {
     Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (context) => NewPasswordScreen()),
+        MaterialPageRoute(
+            builder: (context) => NewPasswordScreen(email: email)),
         ModalRoute.withName("/Home"));
   }
 
@@ -406,7 +410,7 @@ class VerifyScreen extends StatelessWidget {
                                         foregroundColor: Colors.white,
                                         padding: const EdgeInsets.all(16.0),
                                         textStyle:
-                                        const TextStyle(fontSize: 20),
+                                            const TextStyle(fontSize: 20),
                                       ),
                                       onPressed: () {
                                         _verifyCode(context);

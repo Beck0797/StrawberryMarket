@@ -4,27 +4,63 @@ import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:strawberry_market/screens/login/verify_screen.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
 
 class ResetPasswordScreen extends StatelessWidget {
   ResetPasswordScreen({super.key});
 
   final _formKey = GlobalKey<FormState>();
-  var password = "";
+  var email = "";
 
   void _verifyEmail(BuildContext context) {
     if (_formKey.currentState!.validate()) {
-      _goToVerifyScreen(context);
+      _forgotPassword(context);
     }
   }
 
-  void _goToVerifyScreen(BuildContext context) {
+  Future<void> _forgotPassword(context) async {
+    if (_formKey.currentState!.validate()) {
+      final url =
+          Uri.http('13.125.246.40:8080', '/api/v1/users/forgot-password')
+              .replace(queryParameters: {
+        'email': email,
+      });
+      var response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
+
+      final Map parsed = json.decode(response.body);
+      if (response.statusCode == 200) {
+        if (kDebugMode) {
+          print('Request result: ${response.body}');
+        }
+        var verificationCode = parsed["verificationCode"];
+        if (kDebugMode) {
+          print('verificationCode: $verificationCode');
+        }
+        _showToast(parsed["message"].toString());
+
+        _goToVerifyScreen(context, verificationCode.toString());
+      } else {
+        _showToast(parsed["message"].toString());
+        print('response: ${response.body}.');
+      }
+    }
+  }
+
+  void _goToVerifyScreen(BuildContext context, String verificationCode) {
     Navigator.push(
         context,
         MaterialPageRoute(
             builder: (cnt) => VerifyScreen(
-                  verificationCode: "",
+                  verificationCode: verificationCode,
                   isSignUp: false,
-                  email: "",
+                  email: email,
                 )));
   }
 
@@ -155,6 +191,8 @@ class ResetPasswordScreen extends StatelessWidget {
                                 value.trim().length > 50 ||
                                 !value.contains('@')) {
                               return 'Invalid Email';
+                            } else {
+                              email = value;
                             }
                             return null;
                           },

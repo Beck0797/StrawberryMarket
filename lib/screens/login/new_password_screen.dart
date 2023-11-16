@@ -5,16 +5,53 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:strawberry_market/screens/login/login_screen.dart';
 import 'package:strawberry_market/screens/login/verify_screen.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
 
 class NewPasswordScreen extends StatelessWidget {
-  NewPasswordScreen({super.key});
+  NewPasswordScreen({super.key, required this.email});
 
   final _formKey = GlobalKey<FormState>();
   var password = "";
+  var email = "";
 
   void _updatePassword(BuildContext context) {
     if (_formKey.currentState!.validate()) {
-      _goToLoginScreen(context);
+      _resetPassword(context);
+    }
+  }
+
+  Future<void> _resetPassword(context) async {
+    if (_formKey.currentState!.validate()) {
+      final url =
+          Uri.http('13.125.246.40:8080', '/api/v1/users/reset-password');
+      var response = await http.patch(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode(
+          {
+            'email': email,
+            'newPassword': password,
+            'confirmNewPassword': password,
+          },
+        ),
+      );
+
+      final Map parsed = json.decode(response.body);
+      if (response.statusCode == 200) {
+        if (kDebugMode) {
+          print('Request result: ${response.body}');
+        }
+        _showToast(parsed["message"].toString());
+
+        _goToLoginScreen(context);
+      } else {
+        _showToast(parsed["message"].toString());
+        print('response: ${response.body}.');
+      }
     }
   }
 
