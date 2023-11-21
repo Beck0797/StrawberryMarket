@@ -3,41 +3,35 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:strawberry_market/screens/login/login_screen.dart';
-import 'package:strawberry_market/screens/login/verify_screen.dart';
+import 'package:strawberry_market/ui/screens/login/verify_screen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 
-class NewPasswordScreen extends StatelessWidget {
-  NewPasswordScreen({super.key, required this.email});
+class ResetPasswordScreen extends StatelessWidget {
+  ResetPasswordScreen({super.key});
 
   final _formKey = GlobalKey<FormState>();
-  var password = "";
   var email = "";
 
-  void _updatePassword(BuildContext context) {
+  void _verifyEmail(BuildContext context) {
     if (_formKey.currentState!.validate()) {
-      _resetPassword(context);
+      _forgotPassword(context);
     }
   }
 
-  Future<void> _resetPassword(context) async {
+  Future<void> _forgotPassword(context) async {
     if (_formKey.currentState!.validate()) {
       final url =
-          Uri.http('13.125.246.40:8080', '/api/v1/users/reset-password');
-      var response = await http.patch(
+          Uri.http('13.125.246.40:8080', '/api/v1/users/forgot-password')
+              .replace(queryParameters: {
+        'email': email,
+      });
+      var response = await http.post(
         url,
         headers: {
           'Content-Type': 'application/json',
         },
-        body: json.encode(
-          {
-            'email': email,
-            'newPassword': password,
-            'confirmNewPassword': password,
-          },
-        ),
       );
 
       final Map parsed = json.decode(response.body);
@@ -45,9 +39,13 @@ class NewPasswordScreen extends StatelessWidget {
         if (kDebugMode) {
           print('Request result: ${response.body}');
         }
+        var verificationCode = parsed["verificationCode"];
+        if (kDebugMode) {
+          print('verificationCode: $verificationCode');
+        }
         _showToast(parsed["message"].toString());
 
-        _goToLoginScreen(context);
+        _goToVerifyScreen(context, verificationCode.toString());
       } else {
         _showToast(parsed["message"].toString());
         print('response: ${response.body}.');
@@ -55,11 +53,15 @@ class NewPasswordScreen extends StatelessWidget {
     }
   }
 
-  void _goToLoginScreen(BuildContext context) {
-    Navigator.pushAndRemoveUntil(
+  void _goToVerifyScreen(BuildContext context, String verificationCode) {
+    Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => LoginScreen()),
-        ModalRoute.withName("/Home"));
+        MaterialPageRoute(
+            builder: (cnt) => VerifyScreen(
+                  verificationCode: verificationCode,
+                  isSignUp: false,
+                  email: email,
+                )));
   }
 
   void _showToast(String message) {
@@ -79,7 +81,7 @@ class NewPasswordScreen extends StatelessWidget {
       appBar: AppBar(
         leading: GestureDetector(
           onTap: () {
-            _goToLoginScreen(context);
+            Navigator.pop(context);
           },
           child: Padding(
             padding: const EdgeInsets.all(10),
@@ -113,7 +115,7 @@ class NewPasswordScreen extends StatelessWidget {
                     height: 20,
                   ),
                   Text(
-                    'Update password',
+                    'Forgot your password?',
                     style: GoogleFonts.mukta(
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
@@ -121,12 +123,12 @@ class NewPasswordScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(
-                    height: 15,
+                    height: 5,
                   ),
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      'Enter new password!',
+                      'Please enter your email to reset\nyour password!',
                       style: GoogleFonts.mukta(
                         color: Colors.black,
                         fontWeight: FontWeight.normal,
@@ -135,24 +137,23 @@ class NewPasswordScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(
-                    height: 30,
+                    height: 60,
                   ),
                   Form(
                     key: _formKey,
                     child: Column(
                       children: [
                         TextFormField(
-                          maxLength: 10,
-                          obscureText: true,
-                          keyboardType: TextInputType.visiblePassword,
+                          maxLength: 35,
+                          keyboardType: TextInputType.emailAddress,
                           decoration: InputDecoration(
                             counterText: "",
-                            label: const Text('Password'),
+                            label: const Text('Email Address'),
                             prefixIcon: Padding(
                               padding: const EdgeInsets.only(top: 2),
                               // add padding to adjust icon
                               child: Image.asset(
-                                'assets/images/ic_password.png',
+                                'assets/images/ic_email.png',
                                 width: 25,
                                 height: 25,
                               ),
@@ -184,13 +185,15 @@ class NewPasswordScreen extends StatelessWidget {
                             ),
                           ),
                           validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Invalid Password';
-                            } else if (value.trim().length < 6 ||
-                                value.trim().length > 10) {
-                              return 'Must be between 6 and 10 characters.';
+                            if (value == null ||
+                                value.isEmpty ||
+                                value.trim().length <= 1 ||
+                                value.trim().length > 50 ||
+                                !value.contains('@')) {
+                              return 'Invalid Email';
+                            } else {
+                              email = value;
                             }
-                            password = value!;
                             return null;
                           },
                           textInputAction: TextInputAction.next,
@@ -202,64 +205,6 @@ class NewPasswordScreen extends StatelessWidget {
                         ),
                         const SizedBox(
                           height: 20,
-                        ),
-                        TextFormField(
-                          maxLength: 10,
-                          obscureText: true,
-                          keyboardType: TextInputType.visiblePassword,
-                          decoration: InputDecoration(
-                            counterText: "",
-                            label: const Text('Confirm Password'),
-                            prefixIcon: Padding(
-                              padding: const EdgeInsets.only(top: 2),
-                              // add padding to adjust icon
-                              child: Image.asset(
-                                'assets/images/ic_password.png',
-                                width: 25,
-                                height: 25,
-                              ),
-                            ),
-                            fillColor: Colors.white,
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10.0),
-                              borderSide: const BorderSide(
-                                color: Color.fromARGB(255, 255, 42, 35),
-                              ),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10.0),
-                              borderSide: const BorderSide(
-                                  color: Color.fromARGB(255, 159, 150, 144),
-                                  width: 2.0),
-                            ),
-                            errorBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10.0),
-                              borderSide: const BorderSide(
-                                color: Color.fromARGB(255, 255, 42, 35),
-                              ),
-                            ),
-                            focusedErrorBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10.0),
-                              borderSide: const BorderSide(
-                                color: Color.fromARGB(255, 255, 42, 35),
-                              ),
-                            ),
-                          ),
-                          validator: (value) {
-                            if (value != password) {
-                              return 'password does not match';
-                            }
-                            return null;
-                          },
-                          textInputAction: TextInputAction.done,
-                          onSaved: (value) {
-                            // if (value == null) {
-                            //   return;
-                            // }
-                          },
-                        ),
-                        const SizedBox(
-                          height: 30,
                         ),
                         SizedBox(
                           width: double.infinity,
@@ -286,9 +231,9 @@ class NewPasswordScreen extends StatelessWidget {
                                       textStyle: const TextStyle(fontSize: 20),
                                     ),
                                     onPressed: () {
-                                      _updatePassword(context);
+                                      _verifyEmail(context);
                                     },
-                                    child: const Text('Update Password'),
+                                    child: const Text('Continue'),
                                   ),
                                 ),
                               ],

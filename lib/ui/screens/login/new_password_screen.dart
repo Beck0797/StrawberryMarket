@@ -1,67 +1,65 @@
-import 'dart:convert';
-
 import 'package:animate_do/animate_do.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:strawberry_market/ui/screens/login/login_screen.dart';
+import 'package:strawberry_market/ui/screens/login/verify_screen.dart';
 import 'package:http/http.dart' as http;
-import 'package:strawberry_market/screens/login/verify_screen.dart';
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
 
-class SignUpScreen extends StatelessWidget {
-  SignUpScreen({super.key});
+class NewPasswordScreen extends StatelessWidget {
+  NewPasswordScreen({super.key, required this.email});
 
   final _formKey = GlobalKey<FormState>();
   var password = "";
   var email = "";
 
-  void goToVerifyScreen(BuildContext context, String verificationCode) {
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (cnt) => VerifyScreen(
-                  verificationCode: verificationCode,
-                  isSignUp: true,
-                  email: email,
-                )));
+  void _updatePassword(BuildContext context) {
+    if (_formKey.currentState!.validate()) {
+      _resetPassword(context);
+    }
   }
 
-  Future<void> _signUp(BuildContext context) async {
+  Future<void> _resetPassword(context) async {
     if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
-      final url = Uri.http('13.125.246.40:8080', 'api/v1/users/signup');
-      var response = await http.post(
+      final url =
+          Uri.http('13.125.246.40:8080', '/api/v1/users/reset-password');
+      var response = await http.patch(
         url,
         headers: {
           'Content-Type': 'application/json',
         },
         body: json.encode(
           {
-            'name': "user",
             'email': email,
-            'password': password,
-            'confirmPassword': password,
+            'newPassword': password,
+            'confirmNewPassword': password,
           },
         ),
       );
 
       final Map parsed = json.decode(response.body);
-
       if (response.statusCode == 200) {
         if (kDebugMode) {
           print('Request result: ${response.body}');
         }
-        var verificationCode = parsed["verificationCode"];
-        print('verificationCode: $verificationCode');
+        _showToast(parsed["message"].toString());
 
-        goToVerifyScreen(context, verificationCode.toString());
+        _goToLoginScreen(context);
       } else {
         _showToast(parsed["message"].toString());
         print('response: ${response.body}.');
       }
-      // Navigator.of(context).pop();
     }
+  }
+
+  void _goToLoginScreen(BuildContext context) {
+    Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => LoginScreen()),
+        ModalRoute.withName("/Home"));
   }
 
   void _showToast(String message) {
@@ -81,7 +79,7 @@ class SignUpScreen extends StatelessWidget {
       appBar: AppBar(
         leading: GestureDetector(
           onTap: () {
-            Navigator.pop(context);
+            _goToLoginScreen(context);
           },
           child: Padding(
             padding: const EdgeInsets.all(10),
@@ -114,19 +112,8 @@ class SignUpScreen extends StatelessWidget {
                   const SizedBox(
                     height: 20,
                   ),
-                  BounceInDown(
-                    from: 50,
-                    child: Image.asset(
-                      'assets/images/img_strawberry.png',
-                      width: 130,
-                      height: 130,
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
                   Text(
-                    'Sign up',
+                    'Update password',
                     style: GoogleFonts.mukta(
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
@@ -134,74 +121,26 @@ class SignUpScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(
-                    height: 49,
+                    height: 15,
+                  ),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Enter new password!',
+                      style: GoogleFonts.mukta(
+                        color: Colors.black,
+                        fontWeight: FontWeight.normal,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 30,
                   ),
                   Form(
                     key: _formKey,
                     child: Column(
                       children: [
-                        TextFormField(
-                          maxLength: 35,
-                          keyboardType: TextInputType.emailAddress,
-                          decoration: InputDecoration(
-                            counterText: "",
-                            label: const Text('Email Address'),
-                            prefixIcon: Padding(
-                              padding: const EdgeInsets.only(top: 2),
-                              // add padding to adjust icon
-                              child: Image.asset(
-                                'assets/images/ic_email.png',
-                                width: 25,
-                                height: 25,
-                              ),
-                            ),
-                            fillColor: Colors.white,
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10.0),
-                              borderSide: const BorderSide(
-                                color: Color.fromARGB(255, 255, 42, 35),
-                              ),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10.0),
-                              borderSide: const BorderSide(
-                                  color: Color.fromARGB(255, 159, 150, 144),
-                                  width: 2.0),
-                            ),
-                            errorBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10.0),
-                              borderSide: const BorderSide(
-                                color: Color.fromARGB(255, 255, 42, 35),
-                              ),
-                            ),
-                            focusedErrorBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10.0),
-                              borderSide: const BorderSide(
-                                color: Color.fromARGB(255, 255, 42, 35),
-                              ),
-                            ),
-                          ),
-                          validator: (value) {
-                            if (value == null ||
-                                value.isEmpty ||
-                                value.trim().length <= 1 ||
-                                value.trim().length > 50 ||
-                                !value.contains('@')) {
-                              return 'Invalid Email';
-                            }
-                            email = value;
-                            return null;
-                          },
-                          textInputAction: TextInputAction.next,
-                          onSaved: (value) {
-                            // if (value == null) {
-                            //   return;
-                            // }
-                          },
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
                         TextFormField(
                           maxLength: 10,
                           obscureText: true,
@@ -251,7 +190,7 @@ class SignUpScreen extends StatelessWidget {
                                 value.trim().length > 10) {
                               return 'Must be between 6 and 10 characters.';
                             }
-                            password = value;
+                            password = value!;
                             return null;
                           },
                           textInputAction: TextInputAction.next,
@@ -320,7 +259,7 @@ class SignUpScreen extends StatelessWidget {
                           },
                         ),
                         const SizedBox(
-                          height: 20,
+                          height: 30,
                         ),
                         SizedBox(
                           width: double.infinity,
@@ -347,49 +286,14 @@ class SignUpScreen extends StatelessWidget {
                                       textStyle: const TextStyle(fontSize: 20),
                                     ),
                                     onPressed: () {
-                                      _signUp(context);
+                                      _updatePassword(context);
                                     },
-                                    child: const Text('Sign Up'),
+                                    child: const Text('Update Password'),
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Already have an account? ',
-                              style: GoogleFonts.mukta(
-                                color: Colors.black,
-                                fontSize: 16,
-                              ),
-                            ),
-                            const SizedBox(
-                              width: 5,
-                            ),
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.pop(context);
-                              },
-                              child: Text(
-                                'Log in',
-                                style: GoogleFonts.mukta(
-                                  color: const Color.fromARGB(255, 3, 131, 250),
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                  decoration: TextDecoration.underline,
-                                  decorationColor:
-                                      const Color.fromARGB(255, 3, 131, 250),
-                                  decorationThickness: 4,
-                                ),
-                              ),
-                            ),
-                          ],
                         ),
                       ],
                     ),

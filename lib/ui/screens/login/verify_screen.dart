@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
-import 'package:strawberry_market/screens/login/new_password_screen.dart';
+import 'package:strawberry_market/ui/screens/login/new_password_screen.dart';
 
 import 'login_screen.dart';
 

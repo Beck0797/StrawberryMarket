@@ -1,31 +1,36 @@
 import 'dart:convert';
+
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:strawberry_market/screens/home/main_navigation_screen.dart';
-import 'package:strawberry_market/screens/login/reset_password_screen.dart';
-import 'package:strawberry_market/screens/login/signup_screen.dart';
 import 'package:http/http.dart' as http;
+import 'package:strawberry_market/ui/screens/login/verify_screen.dart';
 
-class LoginScreen extends StatelessWidget {
-  LoginScreen({super.key});
+class SignUpScreen extends StatelessWidget {
+  SignUpScreen({super.key});
 
   final _formKey = GlobalKey<FormState>();
   var password = "";
   var email = "";
 
-  _goToHome(BuildContext context) {
-    Navigator.pushAndRemoveUntil(
+  void goToVerifyScreen(BuildContext context, String verificationCode) {
+    Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const MainNavigationScreen()),
-        ModalRoute.withName("/Home"));
+        MaterialPageRoute(
+            builder: (cnt) => VerifyScreen(
+                  verificationCode: verificationCode,
+                  isSignUp: true,
+                  email: email,
+                )));
   }
 
-  Future<void> _login(context) async {
+  Future<void> _signUp(BuildContext context) async {
     if (_formKey.currentState!.validate()) {
-      final url = Uri.http('13.125.246.40:8080', 'api/v1/users/signin');
+      _formKey.currentState!.save();
+      final url = Uri.http('13.125.246.40:8080', 'api/v1/users/signup');
       var response = await http.post(
         url,
         headers: {
@@ -33,23 +38,29 @@ class LoginScreen extends StatelessWidget {
         },
         body: json.encode(
           {
+            'name': "user",
             'email': email,
             'password': password,
+            'confirmPassword': password,
           },
         ),
       );
 
       final Map parsed = json.decode(response.body);
+
       if (response.statusCode == 200) {
         if (kDebugMode) {
           print('Request result: ${response.body}');
         }
-        _goToHome(context);
-      } else {
+        var verificationCode = parsed["verificationCode"];
+        print('verificationCode: $verificationCode');
 
+        goToVerifyScreen(context, verificationCode.toString());
+      } else {
         _showToast(parsed["message"].toString());
         print('response: ${response.body}.');
       }
+      // Navigator.of(context).pop();
     }
   }
 
@@ -65,7 +76,32 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive, overlays: []);
     return Scaffold(
+      appBar: AppBar(
+        leading: GestureDetector(
+          onTap: () {
+            Navigator.pop(context);
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(10),
+            child: FadeInRight(
+              child: Container(
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  // color: Theme.of(context).colorScheme.primary,
+                  color: Color.fromARGB(255, 255, 42, 35),
+                ),
+                child: const Icon(
+                  Icons.arrow_back_rounded,
+                  color: Colors.white,
+                  size: 20,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
       body: SizedBox(
         height: double.infinity,
         child: SingleChildScrollView(
@@ -76,7 +112,7 @@ class LoginScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const SizedBox(
-                    height: 70,
+                    height: 20,
                   ),
                   BounceInDown(
                     from: 50,
@@ -90,7 +126,7 @@ class LoginScreen extends StatelessWidget {
                     height: 20,
                   ),
                   Text(
-                    'Login to Strawberry',
+                    'Sign up',
                     style: GoogleFonts.mukta(
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
@@ -218,6 +254,64 @@ class LoginScreen extends StatelessWidget {
                             password = value;
                             return null;
                           },
+                          textInputAction: TextInputAction.next,
+                          onSaved: (value) {
+                            // if (value == null) {
+                            //   return;
+                            // }
+                          },
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        TextFormField(
+                          maxLength: 10,
+                          obscureText: true,
+                          keyboardType: TextInputType.visiblePassword,
+                          decoration: InputDecoration(
+                            counterText: "",
+                            label: const Text('Confirm Password'),
+                            prefixIcon: Padding(
+                              padding: const EdgeInsets.only(top: 2),
+                              // add padding to adjust icon
+                              child: Image.asset(
+                                'assets/images/ic_password.png',
+                                width: 25,
+                                height: 25,
+                              ),
+                            ),
+                            fillColor: Colors.white,
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                              borderSide: const BorderSide(
+                                color: Color.fromARGB(255, 255, 42, 35),
+                              ),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                              borderSide: const BorderSide(
+                                  color: Color.fromARGB(255, 159, 150, 144),
+                                  width: 2.0),
+                            ),
+                            errorBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                              borderSide: const BorderSide(
+                                color: Color.fromARGB(255, 255, 42, 35),
+                              ),
+                            ),
+                            focusedErrorBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                              borderSide: const BorderSide(
+                                color: Color.fromARGB(255, 255, 42, 35),
+                              ),
+                            ),
+                          ),
+                          validator: (value) {
+                            if (value != password) {
+                              return 'password does not match';
+                            }
+                            return null;
+                          },
                           textInputAction: TextInputAction.done,
                           onSaved: (value) {
                             // if (value == null) {
@@ -226,45 +320,7 @@ class LoginScreen extends StatelessWidget {
                           },
                         ),
                         const SizedBox(
-                          height: 5,
-                        ),
-                        Row(
-                          children: [
-                            Text(
-                              'Forgot your password?',
-                              style: GoogleFonts.mukta(
-                                color: Colors.black,
-                                fontSize: 16,
-                              ),
-                            ),
-                            const SizedBox(
-                              width: 5,
-                            ),
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (cnt) =>
-                                            ResetPasswordScreen()));
-                              },
-                              child: Text(
-                                'Restore',
-                                style: GoogleFonts.mukta(
-                                  color: const Color.fromARGB(255, 3, 131, 250),
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                  decoration: TextDecoration.underline,
-                                  decorationColor:
-                                      const Color.fromARGB(255, 3, 131, 250),
-                                  decorationThickness: 4,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 40,
+                          height: 20,
                         ),
                         SizedBox(
                           width: double.infinity,
@@ -291,9 +347,9 @@ class LoginScreen extends StatelessWidget {
                                       textStyle: const TextStyle(fontSize: 20),
                                     ),
                                     onPressed: () {
-                                      _login(context);
+                                      _signUp(context);
                                     },
-                                    child: const Text('Sign In'),
+                                    child: const Text('Sign Up'),
                                   ),
                                 ),
                               ],
@@ -307,7 +363,7 @@ class LoginScreen extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              'Don\'t have an account? ',
+                              'Already have an account? ',
                               style: GoogleFonts.mukta(
                                 color: Colors.black,
                                 fontSize: 16,
@@ -318,13 +374,10 @@ class LoginScreen extends StatelessWidget {
                             ),
                             GestureDetector(
                               onTap: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (cnt) => SignUpScreen()));
+                                Navigator.pop(context);
                               },
                               child: Text(
-                                'Sign up',
+                                'Log in',
                                 style: GoogleFonts.mukta(
                                   color: const Color.fromARGB(255, 3, 131, 250),
                                   fontWeight: FontWeight.bold,
@@ -334,76 +387,6 @@ class LoginScreen extends StatelessWidget {
                                       const Color.fromARGB(255, 3, 131, 250),
                                   decorationThickness: 4,
                                 ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Image.asset(
-                              'assets/images/ic_line.png',
-                              width: 130,
-                              height: 2,
-                            ),
-                            const SizedBox(
-                              width: 5,
-                            ),
-                            Text(
-                              'OR',
-                              style: GoogleFonts.mukta(
-                                color: Colors.black,
-                                fontSize: 18,
-                              ),
-                            ),
-                            const SizedBox(
-                              width: 5,
-                            ),
-                            Image.asset(
-                              'assets/images/ic_line.png',
-                              width: 130,
-                              height: 2,
-                            ),
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            GestureDetector(
-                              onTap: () {}, // Image tapped
-                              child: InkWell(
-                                onTap: () {
-                                  _showToast("Sign up with Google");
-                                }, // Image tapped
-                                splashColor: Colors.white10,
-                                child: Ink.image(
-                                  fit: BoxFit.cover,
-                                  image: const AssetImage(
-                                      'assets/images/ic_telegram.png'),
-                                  width: 65,
-                                  height: 65,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(
-                              width: 5,
-                            ),
-                            InkWell(
-                              onTap: () {
-                                _showToast("Sign up with Telegram");
-                              }, // Image tapped
-                              splashColor: Colors.white10,
-                              child: Ink.image(
-                                fit: BoxFit.cover,
-                                image: const AssetImage(
-                                    'assets/images/ic_google.png'),
-                                width: 65,
-                                height: 65,
                               ),
                             ),
                           ],

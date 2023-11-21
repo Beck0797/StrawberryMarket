@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:strawberry_market/screens/login/login_screen.dart';
+import 'package:strawberry_market/data/local/PrefsManager.dart';
+import 'package:strawberry_market/ui/screens/login/login_screen.dart';
 import 'package:flutter/services.dart';
 
 final theme = ThemeData(
@@ -12,7 +13,12 @@ final theme = ThemeData(
   textTheme: GoogleFonts.latoTextTheme(),
 );
 
-void main() {
+void main() async {
+  // Required for async calls in `main`
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize SharedPrefs instance.
+  await PrefsManager.init();
   runApp(const MyApp());
 }
 
