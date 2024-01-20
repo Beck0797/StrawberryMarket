@@ -9,6 +9,7 @@ import 'package:strawberry_market/ui/screens/home/main_navigation_screen.dart';
 import 'package:strawberry_market/ui/screens/login/reset_password_screen.dart';
 import 'package:strawberry_market/ui/screens/login/signup_screen.dart';
 import 'package:http/http.dart' as http;
+import '../home/location_screen.dart';
 
 class LoginScreen extends StatelessWidget {
   LoginScreen({super.key});
@@ -22,6 +23,13 @@ class LoginScreen extends StatelessWidget {
         context,
         MaterialPageRoute(builder: (context) => const MainNavigationScreen()),
         ModalRoute.withName("/Home"));
+  }
+
+  _openMap(BuildContext context) {
+    Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const MapScreen()),
+        ModalRoute.withName("/Map"));
   }
 
   Future<void> _saveTokens(String accessToken, String refreshToken) async {
@@ -298,7 +306,8 @@ class LoginScreen extends StatelessWidget {
                                       textStyle: const TextStyle(fontSize: 20),
                                     ),
                                     onPressed: () {
-                                      _login(context);
+                                      // _login(context);
+                                      _openMap(context);
                                     },
                                     child: const Text('Sign In'),
                                   ),
