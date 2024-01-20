@@ -5,11 +5,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:strawberry_market/ui/screens/home/map/location_search_screen.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 
-import '../login/login_screen.dart';
-import 'map/LocationService.dart';
-import 'map/TashkentLocation.dart';
+import '../../login/login_screen.dart';
+import 'LocationService.dart';
+import 'TashkentLocation.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({Key? key}) : super(key: key);
@@ -68,6 +69,11 @@ class _MapScreenState extends State<MapScreen> {
         context,
         MaterialPageRoute(builder: (context) => LoginScreen()),
         ModalRoute.withName("/Home"));
+  }
+
+  void _goToSearchLocationScreen(BuildContext context) {
+    Navigator.push(
+        context, MaterialPageRoute(builder: (cnt) => const LocationSearchScreen()));
   }
 
   @override
@@ -134,63 +140,71 @@ class _MapScreenState extends State<MapScreen> {
                   const SizedBox(
                     height: 20,
                   ),
-                  TextFormField(
-                    maxLength: 35,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: InputDecoration(
-                      counterText: "",
-                      label: const Text('Search or move map'),
-                      prefixIcon: const Padding(
-                        padding: EdgeInsets.only(top: 2),
-                        // add padding to adjust icon
-                        child: Icon(
-                          Icons.search,
-                          size: 25,
-                        ),
-                      ),
-                      fillColor: Colors.white,
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                        borderSide: const BorderSide(
-                          color: Color.fromARGB(255, 255, 42, 35),
-                        ),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                        borderSide: const BorderSide(
-                            color: Color.fromARGB(255, 159, 150, 144),
-                            width: 2.0),
-                      ),
-                      errorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                        borderSide: const BorderSide(
-                          color: Color.fromARGB(255, 255, 42, 35),
-                        ),
-                      ),
-                      focusedErrorBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                        borderSide: const BorderSide(
-                          color: Color.fromARGB(255, 255, 42, 35),
+                  SizedBox(
+                    height: 55,
+                    child: GestureDetector(
+                      onTap: () => _goToSearchLocationScreen(context),
+                      child: AbsorbPointer(
+                        child: TextFormField(
+                          maxLength: 35,
+                          keyboardType: TextInputType.emailAddress,
+                          decoration: InputDecoration(
+                            counterText: "",
+                            label: const Text('Search or move map'),
+                            prefixIcon: const Padding(
+                              padding: EdgeInsets.only(top: 2),
+                              // add padding to adjust icon
+                              child: Icon(
+                                Icons.search,
+                                size: 25,
+                              ),
+                            ),
+                            fillColor: Colors.white,
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                              borderSide: const BorderSide(
+                                color: Color.fromARGB(255, 255, 42, 35),
+                              ),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                              borderSide: const BorderSide(
+                                  color: Color.fromARGB(255, 159, 150, 144),
+                                  width: 2.0),
+                            ),
+                            errorBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                              borderSide: const BorderSide(
+                                color: Color.fromARGB(255, 255, 42, 35),
+                              ),
+                            ),
+                            focusedErrorBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                              borderSide: const BorderSide(
+                                color: Color.fromARGB(255, 255, 42, 35),
+                              ),
+                            ),
+                          ),
+                          validator: (value) {
+                            if (value == null ||
+                                value.isEmpty ||
+                                value.trim().length <= 1 ||
+                                value.trim().length > 50 ||
+                                !value.contains('@')) {
+                              return 'Invalid Email';
+                            }
+                            location = value;
+                            return null;
+                          },
+                          textInputAction: TextInputAction.next,
+                          onSaved: (value) {
+                            // if (value == null) {
+                            //   return;
+                            // }
+                          },
                         ),
                       ),
                     ),
-                    validator: (value) {
-                      if (value == null ||
-                          value.isEmpty ||
-                          value.trim().length <= 1 ||
-                          value.trim().length > 50 ||
-                          !value.contains('@')) {
-                        return 'Invalid Email';
-                      }
-                      location = value;
-                      return null;
-                    },
-                    textInputAction: TextInputAction.next,
-                    onSaved: (value) {
-                      // if (value == null) {
-                      //   return;
-                      // }
-                    },
                   ),
                   const SizedBox(
                     height: 20,
