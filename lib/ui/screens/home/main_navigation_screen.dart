@@ -1,4 +1,7 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:stylish_bottom_bar/model/bar_items.dart';
 import 'package:stylish_bottom_bar/stylish_bottom_bar.dart';
 
@@ -10,8 +13,9 @@ class MainNavigationScreen extends StatefulWidget {
 }
 
 class _MainNavigationScreen extends State<MainNavigationScreen> {
-  PageController controller = PageController(initialPage: 0);
-  var selected = 0;
+  PageController controller = PageController(initialPage: 2);
+  var selected = 2;
+  String _selectedCity = 'London';
 
   @override
   void dispose() {
@@ -22,6 +26,102 @@ class _MainNavigationScreen extends State<MainNavigationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Row(
+          children: [
+            DropdownButton<String>(
+              value: _selectedCity,
+              isExpanded: false,
+              icon: SvgPicture.asset('assets/icons/ic_arrow_down.svg',
+                  semanticsLabel: 'Icon Down'),
+              onChanged: (String? newValue) {
+                setState(() {
+                  _selectedCity = newValue!;
+                });
+              },
+              items: [
+                DropdownMenuItem<String>(
+                  value: "New York",
+                  child: Text(
+                    "New York",
+                    style: GoogleFonts.mukta(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                DropdownMenuItem<String>(
+                  value: "Paris",
+                  child: Text(
+                    "Paris",
+                    style: GoogleFonts.mukta(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                DropdownMenuItem<String>(
+                  value: "London",
+                  child: Text(
+                    "London",
+                    style: GoogleFonts.mukta(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const Spacer(),
+            SizedBox(
+              height: 30,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: <Widget>[
+                    Positioned.fill(
+                      child: Container(
+                        decoration: const BoxDecoration(
+                          color: Color.fromARGB(255, 255, 42, 35),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      // width: double.infinity,
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.add,
+                            color: Colors.white,
+                          ),
+                          TextButton(
+                            style: TextButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              // padding: const EdgeInsets.all(8.0),
+                              textStyle: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            onPressed: () {},
+                            child: const Text('Post'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            IconButton(
+              icon: SvgPicture.asset('assets/icons/ic_notification.svg'),
+              onPressed: () {},
+            ),
+          ],
+        ),
+      ),
+
       body: PageView(
         controller: controller,
         onPageChanged: (index) {

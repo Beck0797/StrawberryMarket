@@ -88,6 +88,8 @@ flutter:
     - assets/categories/category_furniture.svg
     - assets/categories/category_kitchen.svg
     - assets/categories/category_clothes.svg
+    - assets/icons/ic_arrow_down.svg
+    - assets/icons/ic_notification.svg
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 
