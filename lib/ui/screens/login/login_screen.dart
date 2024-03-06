@@ -28,7 +28,7 @@ class LoginScreen extends StatelessWidget {
   _openMap(BuildContext context) {
     Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (context) => const MapScreen()),
+        MaterialPageRoute(builder: (context) => MapScreen()),
         ModalRoute.withName("/Map"));
   }
 

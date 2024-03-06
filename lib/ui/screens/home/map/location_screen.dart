@@ -1,19 +1,23 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:strawberry_market/ui/screens/home/map/location_search_screen.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 
 import '../../login/login_screen.dart';
+import '../select_categories_screen.dart';
 import 'LocationService.dart';
 import 'TashkentLocation.dart';
 
 class MapScreen extends StatefulWidget {
-  const MapScreen({Key? key}) : super(key: key);
+  MapScreen({this.suggestionItem, Key? key}) : super(key: key);
+  SuggestItem? suggestionItem;
 
   @override
   State<MapScreen> createState() => _MapScreenState();
@@ -21,12 +25,20 @@ class MapScreen extends StatefulWidget {
 
 class _MapScreenState extends State<MapScreen> {
   final mapControllerCompleter = Completer<YandexMapController>();
+  final List<MapObject> mapObjects = [];
+  final MapObjectId cameraMapObjectId = const MapObjectId('camera_placemark');
+
   var location = "";
+  SuggestItem? suggestionItem;
 
   @override
   void initState() {
     super.initState();
+    suggestionItem = widget.suggestionItem;
     _initPermission().ignore();
+    if (suggestionItem != null) {
+      log("In Location Screen: suggestItem ${suggestionItem!.displayText}");
+    }
   }
 
   Future<void> _initPermission() async {
@@ -44,7 +56,40 @@ class _MapScreenState extends State<MapScreen> {
     } catch (_) {
       location = defLocation;
     }
-    _moveToCurrentLocation(location);
+    if (suggestionItem == null) {
+      _moveToCurrentLocation(location);
+    }
+  }
+
+  void _updatePlaceMark(Point point) {
+    final placemarkMapObject = PlacemarkMapObject(
+        mapId: const MapObjectId('search_placemark'),
+        point: point,
+        icon: PlacemarkIcon.single(PlacemarkIconStyle(
+          image: BitmapDescriptor.fromAssetImage(
+            'assets/images/ic_placemark.png',
+          ),
+        )));
+
+    setState(() {
+      mapObjects.add(placemarkMapObject);
+    });
+  }
+
+  void _goToSelectFavoriteCategories(BuildContext context) {
+    Navigator.push(context,
+        MaterialPageRoute(builder: (cnt) => const SelectCategoriesScreen()));
+    // _showToast("Going to select categories screen");
+  }
+
+  void _showToast(String message) {
+    Fluttertoast.showToast(
+        msg: message,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 1,
+        textColor: Colors.white,
+        fontSize: 16.0);
   }
 
   Future<void> _moveToCurrentLocation(
@@ -72,8 +117,8 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   void _goToSearchLocationScreen(BuildContext context) {
-    Navigator.push(
-        context, MaterialPageRoute(builder: (cnt) => const LocationSearchScreen()));
+    Navigator.push(context,
+        MaterialPageRoute(builder: (cnt) => const LocationSearchScreen()));
   }
 
   @override
@@ -215,8 +260,32 @@ class _MapScreenState extends State<MapScreen> {
             child: Stack(
               children: [
                 YandexMap(
+                  mapObjects: mapObjects,
                   onMapCreated: (controller) {
                     mapControllerCompleter.complete(controller);
+                    //go to suggested place
+                    if (suggestionItem != null) {
+                      _updatePlaceMark(Point(
+                          latitude: suggestionItem!.center!.latitude,
+                          longitude: suggestionItem!.center!.longitude));
+
+                      var selectedLocation = AppLatLong(
+                          lat: suggestionItem!.center!.latitude,
+                          long: suggestionItem!.center!.longitude);
+                      _moveToCurrentLocation(selectedLocation);
+                    }
+                  },
+                  onCameraPositionChanged: (CameraPosition cameraPosition,
+                      CameraUpdateReason _, bool __) async {
+                    final placemarkMapObject = mapObjects
+                            .firstWhere((el) => el.mapId == cameraMapObjectId)
+                        as PlacemarkMapObject;
+
+                    setState(() {
+                      mapObjects[mapObjects.indexOf(placemarkMapObject)] =
+                          placemarkMapObject.copyWith(
+                              point: cameraPosition.target);
+                    });
                   },
                 ),
                 Positioned(
@@ -251,6 +320,7 @@ class _MapScreenState extends State<MapScreen> {
                                 ),
                                 onPressed: () {
                                   // _login(context);
+                                  _goToSelectFavoriteCategories(context);
                                 },
                                 child: const Text('Done'),
                               ),

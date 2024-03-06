@@ -43,6 +43,7 @@ dependencies:
   shared_preferences: ^2.2.2
   yandex_mapkit: ^3.2.0
   geolocator: ^10.1.0
+  flutter_svg: ^2.0.10+1
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -76,6 +77,17 @@ flutter:
     - assets/images/ic_telegram.png
     - assets/images/ic_google.png
     - assets/images/ic_line.png
+    - assets/images/ic_placemark.png
+    - assets/categories/category_car.svg
+    - assets/categories/category_food.svg
+    - assets/categories/category_building_materials.svg
+    - assets/categories/category_pets.svg
+    - assets/categories/category_fitness.svg
+    - assets/categories/category_home_interior.svg
+    - assets/categories/category_electronics.svg
+    - assets/categories/category_furniture.svg
+    - assets/categories/category_kitchen.svg
+    - assets/categories/category_clothes.svg
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 

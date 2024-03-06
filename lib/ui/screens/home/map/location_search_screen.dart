@@ -4,6 +4,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:strawberry_market/ui/screens/home/map/location_screen.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 
 class LocationSearchScreen extends StatefulWidget {
@@ -52,6 +53,14 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
         }
       });
     }
+  }
+
+  _sendSuggestionBack(SuggestItem suggestionItem) {
+    Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+            builder: (context) => MapScreen(suggestionItem: suggestionItem)),
+        ModalRoute.withName("/Map"));
   }
 
   @override
@@ -178,28 +187,32 @@ class _LocationSearchScreenState extends State<LocationSearchScreen> {
                       shrinkWrap: true,
                       itemCount: suggestionList.length,
                       itemBuilder: (context, index) {
-                        return Padding(
-                          padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                suggestionList[index].title,
-                                style: GoogleFonts.mukta(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.normal,
-                                  fontSize: 18,
+                        return InkWell(
+                          onTap: () =>
+                              {_sendSuggestionBack(suggestionList[index])},
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  suggestionList[index].title,
+                                  style: GoogleFonts.mukta(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.normal,
+                                    fontSize: 18,
+                                  ),
                                 ),
-                              ),
-                              Text(
-                                suggestionList[index].displayText,
-                                style: GoogleFonts.mukta(
-                                  color: Colors.grey,
-                                  fontWeight: FontWeight.normal,
-                                  fontSize: 14,
+                                Text(
+                                  suggestionList[index].displayText,
+                                  style: GoogleFonts.mukta(
+                                    color: Colors.grey,
+                                    fontWeight: FontWeight.normal,
+                                    fontSize: 14,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         );
                       },
